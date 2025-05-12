@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku Practice</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Sudoku</h1>
+            <div class="level">
+                Độ khó: <span id="difficulty"></span>
+                <span id="stars"></span>
+            </div>
+            <div class="timer">00:00</div>
+        </div>
+
+        <div id="difficulty-menu" class="menu">
+            <button onclick="startGame('easy')">Dễ</button>
+            <button onclick="startGame('medium')">Trung bình</button>
+            <button onclick="startGame('hard')">Khó</button>
+        </div>
+
+        <table id="game-board"></table>
+        <div class="toolbar">
+            <button onclick="eraseCell()"><i class="fas fa-eraser"></i></button>
+            <button onclick="undo()">Hoàn tác</button>
+        </div>
+
+        <div id="result-modal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <h2 id="result-title"></h2>
+                <p id="result-message"></p>
+                <button onclick="closeModal()">Chơi lại</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

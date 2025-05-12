@@ -1,0 +1,255 @@
+/* ==================================
+    Tổng quan và bố cục trang
+    ================================== */
+
+    body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh; /* Sử dụng min-height để nội dung không bị cắt */
+        background-color: #f0f8ff;
+        margin: 0;
+        padding: 0; /* Thêm padding để có khoảng trắng xung quanh nội dung nếu cần */
+    }
+    
+    .container {
+        text-align: center;
+        width: 80%; /* Giữ kích thước tương đối */
+        max-width: 600px; /* Nhưng giới hạn chiều rộng tối đa */
+        margin: auto; /* Căn giữa ngang */
+    }
+    
+    /* ==================================
+        Header (Tiêu đề, Timer, Level)
+        ================================== */
+    
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        width: 100%; /* Đảm bảo header chiếm hết chiều rộng của container */
+    }
+    
+    .level,
+    .timer,
+    .share {
+        font-size: 1.125rem; /* 18px / 16px = 1.125rem (sử dụng rem) */
+    }
+    
+    .level span {
+        margin-right: 0.625rem; /* 10px / 16px = 0.625rem (sử dụng rem) */
+    }
+    
+    .share i {
+        cursor: pointer;
+    }
+    
+    /* ==================================
+        Menu (Nút chọn chế độ chơi/độ khó)
+        ================================== */
+    
+    .menu button {
+        padding: 0.625rem 1.25rem; /* 10px / 16px = 0.625rem, 20px / 16px = 1.25rem (sử dụng rem) */
+        margin: 0.3125rem; /* 5px / 16px = 0.3125rem (sử dụng rem) */
+        font-size: 1rem; /* 16px / 16px = 1rem (sử dụng rem) */
+        cursor: pointer;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 0.3125rem; /* 5px / 16px = 0.3125rem (sử dụng rem) */
+        transition: background-color 0.3s ease;
+    }
+    
+    .menu button:hover {
+        background-color: #45a049;
+    }
+    
+    /* ==================================
+        Bảng Sudoku
+        ================================== */
+    
+    table {
+        border-collapse: collapse;
+        margin: 1.25rem auto; /* 20px / 16px = 1.25rem (sử dụng rem) */
+        border: 0.125rem solid #333; /* 2px / 16px = 0.125rem (sử dụng rem) */
+    }
+    
+    td {
+        width: 3.125rem; /* 50px / 16px = 3.125rem (sử dụng rem) */
+        height: 3.125rem; /* 50px / 16px = 3.125rem (sử dụng rem) */
+        border: 0.0625rem solid #ccc; /* 1px / 16px = 0.0625rem (sử dụng rem) */
+        position: relative;
+    }
+    
+    /* Quy tắc bổ sung để tạo viền đậm cho các khối 3x3 */
+    td:nth-child(3n) {
+        border-right: 0.125rem solid #333; /* 2px / 16px = 0.125rem (sử dụng rem) */
+    }
+    
+    td:nth-child(3n+1) {
+        border-left: 0.125rem solid #333; /* 2px / 16px = 0.125rem (sử dụng rem) */
+    }
+    
+    tr:nth-child(3n) td {
+        border-bottom: 0.125rem solid #333; /* 2px / 16px = 0.125rem (sử dụng rem) */
+    }
+    
+    tr:nth-child(3n+1) td {
+        border-top: 0.125rem solid #333; /* 2px / 16px = 0.125rem (sử dụng rem) */
+    }
+    
+    /* ==================================
+        Ô Input
+        ================================== */
+    
+    .cell {
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        font-size: 1.25rem; /* 20px / 16px = 1.25rem (sử dụng rem) */
+        border: none;
+        outline: none;
+        background: transparent;
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+    
+    .cell:disabled {
+        color: #000;
+        font-weight: bold;
+    }
+    
+    .cell:focus {
+        border: 0.125rem solid #007bff; /* 2px / 16px = 0.125rem (sử dụng rem) */
+    }
+    
+    /* ==================================
+        Hiệu ứng Highlight
+        ================================== */
+    
+    .highlighted {
+        background-color: #fffacd;
+    }
+    
+    .highlighted-row-col {
+        background-color: #f0ffff;
+    }
+    
+    /* ==================================
+        Hiệu ứng lỗi
+        ================================== */
+    
+    .error {
+        background-color: #ffcccc;
+    }
+    
+    /* ==================================
+        Thanh công cụ (Xóa, Hoàn tác)
+        ================================== */
+    
+    .toolbar {
+        margin-top: 1.25rem; /* 20px / 16px = 1.25rem (sử dụng rem) */
+    }
+    
+    .toolbar button {
+        padding: 0.625rem; /* 10px / 16px = 0.625rem (sử dụng rem) */
+        margin: 0 0.3125rem; /* 0 5px (sử dụng rem) */
+        border: none;
+        border-radius: 0.3125rem; /* 5px / 16px = 0.3125rem (sử dụng rem) */
+        cursor: pointer;
+        background-color: #eee;
+        transition: background-color 0.3s ease;
+    }
+    
+    .toolbar button:hover {
+        background-color: #ddd;
+    }
+    
+    /* ==================================
+        Modal (Thông báo kết quả)
+        ================================== */
+    
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+    }
+    
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 1.25rem; /* 20px / 16px = 1.25rem (sử dụng rem) */
+        border: 0.0625rem solid #888; /* 1px / 16px = 0.0625rem (sử dụng rem) */
+        width: 80%;
+        max-width: 25rem; /* 400px / 16px = 25rem (sử dụng rem) */
+        border-radius: 0.625rem; /* 10px / 16px = 0.625rem (sử dụng rem) */
+    }
+    
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 1.75rem; /* 28px / 16px = 1.75rem (sử dụng rem) */
+        font-weight: bold;
+        cursor: pointer;
+    }
+    
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    
+    /* ==================================
+        Thông báo chờ đợi (Online)
+        ================================== */
+    
+    #waiting {
+        font-size: 1.25rem; /* 20px / 16px = 1.25rem (sử dụng rem) */
+        margin-top: 1.25rem; /* 20px / 16px = 1.25rem (sử dụng rem) */
+    }
+    
+    /* ==================================
+        Hiển thị kết quả (Số lần nhập đúng)
+        ================================== */
+    
+    #result-cells {
+        display: flex;
+        justify-content: center;
+        margin-top: 1.25rem; /* 20px / 16px = 1.25rem (sử dụng rem) */
+    }
+    
+    .result-cell {
+        width: 1.875rem; /* 30px / 16px = 1.875rem (sử dụng rem) */
+        height: 1.875rem; /* 30px / 16px = 1.875rem (sử dụng rem) */
+        text-align: center;
+        line-height: 1.875rem; /* 30px / 16px = 1.875rem (sử dụng rem) */
+        margin: 0 0.3125rem; /* 0 5px (sử dụng rem) */
+        border: 0.0625rem solid #ccc; /* 1px / 16px = 0.0625rem (sử dụng rem) */
+    }
+    
+    /* ==================================
+        Responsive Design (Cho di động)
+        ================================== */
+    
+    @media screen and (max-width: 600px) {
+        table {
+            width: 90%;
+        }
+    
+        td {
+            width: 2.5rem; /* 40px / 16px = 2.5rem (sử dụng rem) */
+            height: 2.5rem; /* 40px / 16px = 2.5rem (sử dụng rem) */
+        }
+    
+        .cell {
+            font-size: 1rem; /* 16px / 16px = 1rem (sử dụng rem) */
+        }
+    }
