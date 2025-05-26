@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sudoku Online</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f0f0f0;
+      }
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .header h1 {
+        color: #333;
+        font-size: 2.5em;
+        margin: 0;
+      }
+      .difficulty-menu {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .difficulty-menu button {
+        padding: 15px 30px;
+        margin: 0 10px;
+        font-size: 1.2em;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background-color: #4caf50;
+        color: white;
+      }
+      .difficulty-menu button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      .game-container {
+        display: flex;
+        justify-content: space-between;
+        gap: 30px;
+        margin-top: 20px;
+      }
+      .game-info {
+        flex: 1;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      .game-area {
+        flex: 2;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+      .boards-container {
+        display: flex;
+        gap: 30px;
+      }
+      .main-board {
+        flex: 2;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      .opponent-board {
+        flex: 1;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      .opponent-board h3 {
+        text-align: center;
+        color: #333;
+        margin-top: 0;
+        margin-bottom: 15px;
+      }
+      .info-block {
+        margin-bottom: 20px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 5px;
+      }
+      .info-block h3 {
+        margin: 0 0 10px 0;
+        color: #333;
+      }
+      .timer {
+        font-size: 2em;
+        color: #dc3545;
+        text-align: center;
+        margin: 10px 0;
+      }
+      .score {
+        font-size: 1.2em;
+        color: #28a745;
+        white-space: pre-line;
+      }
+      .progress {
+        font-size: 1.2em;
+        color: #007bff;
+      }
+      .move-history {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        max-height: 200px;
+        overflow-y: auto;
+      }
+      .move-history h3 {
+        margin: 0 0 10px 0;
+        color: #333;
+      }
+      .move-history div {
+        padding: 5px 0;
+        border-bottom: 1px solid #eee;
+      }
+      table {
+        border-collapse: collapse;
+        margin: 0 auto;
+      }
+      td {
+        padding: 0;
+        position: relative;
+      }
+      input.cell {
+        width: 40px;
+        height: 40px;
+        text-align: center;
+        font-size: 1.2em;
+        border: 1px solid #ccc;
+        background: white;
+      }
+      input.cell:disabled {
+        background: #f8f9fa;
+        color: #333;
+      }
+      input.cell.error {
+        background: #ffebee;
+        color: #dc3545;
+      }
+      input.cell.highlighted {
+        background: #e3f2fd;
+      }
+      input.cell.highlighted-row-col {
+        background: #f5f5f5;
+      }
+      input.cell.correct-move {
+        color: #28a745;
+        font-weight: bold;
+      }
+      tr:nth-child(3n) td {
+        border-bottom: 2px solid #333;
+      }
+      td:nth-child(3n) {
+        border-right: 2px solid #333;
+      }
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+      }
+      .modal-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        text-align: center;
+        max-width: 500px;
+        width: 90%;
+      }
+      .modal h2 {
+        color: #333;
+        margin-top: 0;
+      }
+      .modal p {
+        color: #666;
+        white-space: pre-line;
+        margin: 20px 0;
+      }
+      .modal button {
+        padding: 10px 20px;
+        background: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1.1em;
+      }
+      .modal button:hover {
+        background: #45a049;
+      }
+      .level {
+        font-size: 1.5em;
+        color: #333;
+        margin-bottom: 10px;
+      }
+      .share {
+        color: #ffc107;
+        font-size: 1.2em;
+        margin-bottom: 20px;
+      }
+      #waiting {
+        text-align: center;
+        font-size: 1.5em;
+        color: #666;
+        margin: 20px 0;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Sudoku Online</h1>
+      </div>
+
+      <div id="difficulty-menu" class="difficulty-menu">
+        <h2>Chọn độ khó</h2>
+        <button id="easy-btn">Dễ</button>
+        <button id="medium-btn">Trung bình</button>
+        <button id="hard-btn">Khó</button>
+      </div>
+
+      <div id="waiting" style="display: none; text-align: center; margin: 20px">
+        Đang chờ người chơi thứ hai...
+      </div>
+
+      <div id="game-area" class="game-container" style="display: none">
+        <div class="game-info">
+          <div class="info-block">
+            <h3>Thông tin game</h3>
+            <div class="level">Easy</div>
+            <div class="share">★</div>
+          </div>
+
+          <div class="info-block">
+            <h3>Thời gian</h3>
+            <div class="timer">00:00</div>
+          </div>
+
+          <div class="info-block">
+            <h3>Điểm số</h3>
+            <div class="score">Điểm của bạn: 0</div>
+            <div class="opponent-score">Điểm đối thủ: 0</div>
+          </div>
+
+          <div class="info-block">
+            <h3>Tiến độ</h3>
+            <div class="progress">Tiến độ: 0%</div>
+          </div>
+
+          <div class="info-block">
+            <h3>Lịch sử nước đi</h3>
+            <div class="move-history"></div>
+          </div>
+        </div>
+
+        <div class="boards-container">
+          <div class="main-board">
+            <h3>Bàn cờ của bạn</h3>
+            <div id="game-board"></div>
+          </div>
+
+          <div class="opponent-board">
+            <h3>Bàn cờ đối thủ</h3>
+            <div id="opponent-board"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="result-modal" class="modal">
+      <div class="modal-content">
+        <h2 id="result-title">Kết quả</h2>
+        <p id="result-message"></p>
+        <button onclick="closeModal()">Đóng</button>
+      </div>
+    </div>
+
+    <script>
+      const socket = io(window.location.origin, {
+        transports: ["websocket", "polling"],
+        reconnection: true,
+        reconnectionAttempts: Infinity,
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000,
+        timeout: 20000,
+        autoConnect: true,
+        path: "/socket.io/",
+      });
+
+      socket.on("connect", () => {
+        console.log("Connected to server with ID:", socket.id);
+        document.getElementById("waiting").innerText =
+          "Đã kết nối đến máy chủ. Vui lòng chọn độ khó để bắt đầu.";
+      });
+
+      socket.on("connect_error", (error) => {
+        console.error("Connection error:", error);
+        document.getElementById("waiting").innerText =
+          "Không thể kết nối đến máy chủ. Đang thử kết nối lại...";
+        document.getElementById("waiting").style.display = "block";
+        document.getElementById("game-area").style.display = "none";
+        document.getElementById("difficulty-menu").style.display = "none";
+      });
+
+      socket.on("disconnect", () => {
+        console.log("Disconnected from server");
+        alert("Mất kết nối đến máy chủ. Vui lòng tải lại trang.");
+      });
+
+      socket.on("waiting", (data) => {
+        console.log("Waiting for opponent:", data);
+        document.getElementById("waiting").style.display = "block";
+        document.getElementById("waiting").innerText = data.message;
+        document.getElementById("game-area").style.display = "none";
+        document.getElementById("difficulty-menu").style.display = "none";
+      });
+
+      socket.on("match_found", (data) => {
+        console.log("Match found:", data);
+        document.getElementById("waiting").style.display = "none";
+        document.getElementById("game-area").style.display = "flex";
+        document.getElementById("difficulty-menu").style.display = "none";
+      });
+
+      document.getElementById("easy-btn").addEventListener("click", () => {
+        console.log("Requesting new game with level: easy");
+        socket.emit("request_new_game", {
+          level: "easy",
+          timestamp: new Date().getTime(),
+        });
+      });
+
+      document.getElementById("medium-btn").addEventListener("click", () => {
+        console.log("Requesting new game with level: medium");
+        socket.emit("request_new_game", {
+          level: "medium",
+          timestamp: new Date().getTime(),
+        });
+      });
+
+      document.getElementById("hard-btn").addEventListener("click", () => {
+        console.log("Requesting new game with level: hard");
+        socket.emit("request_new_game", {
+          level: "hard",
+          timestamp: new Date().getTime(),
+        });
+      });
+
+      window.onerror = function (msg, url, lineNo, columnNo, error) {
+        console.error(
+          "Error: " +
+            msg +
+            "\nURL: " +
+            url +
+            "\nLine: " +
+            lineNo +
+            "\nColumn: " +
+            columnNo +
+            "\nError object: " +
+            JSON.stringify(error)
+        );
+        return false;
+      };
+    </script>
+    <script src="/static/js/online.js"></script>
+  </body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sudoku Practice Mode</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f0f0f0;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .header h1 {
+        color: #333;
+        font-size: 2.5em;
+        margin: 0;
+      }
+      .difficulty-menu {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .difficulty-menu button {
+        padding: 15px 30px;
+        margin: 0 10px;
+        font-size: 1.2em;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background-color: #4caf50;
+        color: white;
+      }
+      .difficulty-menu button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      .game-container {
+        display: flex;
+        justify-content: space-between;
+        gap: 30px;
+        margin-top: 20px;
+      }
+      .game-info {
+        flex: 1;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      .game-board {
+        flex: 2;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      .info-block {
+        margin-bottom: 20px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 5px;
+      }
+      .info-block h3 {
+        margin: 0 0 10px 0;
+        color: #333;
+      }
+      .timer {
+        font-size: 2em;
+        color: #dc3545;
+        text-align: center;
+        margin: 10px 0;
+      }
+      .score {
+        font-size: 1.2em;
+        color: #28a745;
+        white-space: pre-line;
+      }
+      .progress {
+        font-size: 1.2em;
+        color: #007bff;
+      }
+      table {
+        border-collapse: collapse;
+        margin: 0 auto;
+      }
+      td {
+        padding: 0;
+        position: relative;
+      }
+      input.cell {
+        width: 40px;
+        height: 40px;
+        text-align: center;
+        font-size: 1.2em;
+        border: 1px solid #ccc;
+        background: white;
+      }
+      input.cell:disabled {
+        background: #f8f9fa;
+        color: #333;
+      }
+      input.cell.error {
+        background: #ffebee;
+        color: #dc3545;
+      }
+      input.cell.highlighted {
+        background: #e3f2fd;
+      }
+      input.cell.highlighted-row-col {
+        background: #f5f5f5;
+      }
+      tr:nth-child(3n) td {
+        border-bottom: 2px solid #333;
+      }
+      td:nth-child(3n) {
+        border-right: 2px solid #333;
+      }
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+      }
+      .modal-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        text-align: center;
+        max-width: 500px;
+        width: 90%;
+      }
+      .modal h2 {
+        color: #333;
+        margin-top: 0;
+      }
+      .modal p {
+        color: #666;
+        white-space: pre-line;
+        margin: 20px 0;
+      }
+      .modal button {
+        padding: 10px 20px;
+        background: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1.1em;
+      }
+      .modal button:hover {
+        background: #45a049;
+      }
+      .level {
+        font-size: 1.5em;
+        color: #333;
+        margin-bottom: 10px;
+      }
+      .share {
+        color: #ffc107;
+        font-size: 1.2em;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Chọn độ khó</h1>
+      </div>
+
+      <div id="difficulty-menu" class="difficulty-menu">
+        <button onclick="requestNewGame('easy')">Dễ</button>
+        <button onclick="requestNewGame('medium')">Trung bình</button>
+        <button onclick="requestNewGame('hard')">Khó</button>
+      </div>
+
+      <div id="game-area" class="game-container" style="display: none">
+        <div class="game-info">
+          <div class="info-block">
+            <h3>Thông tin game</h3>
+            <div class="level">Easy</div>
+            <div class="share">★</div>
+          </div>
+
+          <div class="info-block">
+            <h3>Thời gian</h3>
+            <div class="timer">00:00</div>
+          </div>
+
+          <div class="info-block">
+            <h3>Điểm số</h3>
+            <div class="score">Điểm của bạn: 0</div>
+          </div>
+
+          <div class="info-block">
+            <h3>Tiến độ</h3>
+            <div class="progress">Tiến độ: 0%</div>
+          </div>
+        </div>
+
+        <div class="game-board">
+          <div id="game-board"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="result-modal" class="modal">
+      <div class="modal-content">
+        <h2 id="result-title">Kết quả</h2>
+        <p id="result-message"></p>
+        <button onclick="closeModal()">Đóng</button>
+      </div>
+    </div>
+
+    <script src="/static/js/script.js"></script>
+  </body>
+</html>

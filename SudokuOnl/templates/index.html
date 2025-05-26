@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sudoku</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Sudoku</h1>
+      <div class="menu">
+        <button onclick="window.location.href='/practice'">Chơi Offline</button>
+        <button onclick="window.location.href='/online'">Chơi Online</button>
+      </div>
+    </div>
+  </body>
+</html>
